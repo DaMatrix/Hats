@@ -100,10 +100,9 @@ public class HatRendererHelper
         }
         else if(!HatHandler.reloadingHats)
         {
-            if(!Hats.eventHandlerClient.requestedHats.contains(info.hatName))
+            if(Hats.eventHandlerClient.requestedHats.add(info.hatName))
             {
                 HatHandler.requestHat(info.hatName, null);
-                Hats.eventHandlerClient.requestedHats.add(info.hatName);
             }
         }
     }

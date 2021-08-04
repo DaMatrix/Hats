@@ -1,5 +1,7 @@
 package me.ichun.mods.hats.client.core;
 
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
+import it.unimi.dsi.fastutil.ints.IntSet;
 import me.ichun.mods.hats.api.RenderOnEntityHelper;
 import me.ichun.mods.hats.client.gui.GuiHatSelection;
 import me.ichun.mods.hats.client.gui.GuiHatUnlocked;
@@ -28,8 +30,10 @@ import org.lwjgl.input.Keyboard;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 public class EventHandlerClient
 {
@@ -41,9 +45,9 @@ public class EventHandlerClient
 
     public HashMap<String, Integer> availableHats = new HashMap<>();
     public HashMap<String, Integer> serverHats = new HashMap<>();
-    public ArrayList<String> requestedHats = new ArrayList<>();
-    public ArrayList<Integer> requestMobHats = new ArrayList<>();
-    public ArrayList<Integer> requestedMobHats = new ArrayList<>();
+    public Set<String> requestedHats = new HashSet<>();
+    public IntSet requestMobHats = new IntOpenHashSet();
+    public IntSet requestedMobHats = new IntOpenHashSet();
 
     public World worldInstance;
 
@@ -210,7 +214,7 @@ public class EventHandlerClient
                 {
                     if(requestMobHats.size() > 0)
                     {
-                        Hats.channel.sendToServer(new PacketRequestMobHats(requestMobHats));
+                        Hats.channel.sendToServer(new PacketRequestMobHats(new ArrayList<>(this.requestMobHats)));
                         requestMobHats.clear();
                     }
                 }
@@ -254,6 +258,8 @@ public class EventHandlerClient
 
             if(Hats.config.randomMobHat > 0 && !(SessionState.serverHasMod == 1 && Hats.config.playerHatsMode == 4) || SessionState.serverHasMod == 1 && Hats.config.playerHatsMode == 4)
             {
+                this.requestMobHats.removeIf(id -> world.getEntityByID(id) == null);
+                this.requestedMobHats.removeIf(id -> world.getEntityByID(id) == null);
                 for(int i = 0; i < world.loadedEntityList.size(); i++)
                 {
                     Entity ent = world.loadedEntityList.get(i);
